@@ -1,0 +1,458 @@
+/* ════════════════════════════════════════════════════
+   LearnerHome — Galaxy / Deep Space UI
+   ════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700;800&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Root ──────────────────────────────────────────── */
+.lh-root {
+  min-height: 100vh;
+  background: #03030f;
+  color: white;
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Stars ─────────────────────────────────────────── */
+.lh-stars {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+
+.lh-star {
+  position: absolute; border-radius: 50%; background: white;
+  animation: lhTwinkle ease-in-out infinite alternate;
+}
+
+@keyframes lhTwinkle {
+  from { opacity: 0.1; transform: scale(0.8); }
+  to   { opacity: 1;   transform: scale(1.6); }
+}
+
+/* ── Nebula glows ──────────────────────────────────── */
+.lh-nebula {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+
+.lh-glow {
+  position: absolute; border-radius: 50%;
+  filter: blur(100px); pointer-events: none;
+}
+
+.lh-g1 { width: 800px; height: 800px; background: rgba(157,77,255,0.08); top:-300px; left:-200px; animation: lhDrift1 20s ease-in-out infinite alternate; }
+.lh-g2 { width: 600px; height: 600px; background: rgba(255,77,158,0.07); bottom:-200px; right:-150px; animation: lhDrift2 18s ease-in-out infinite alternate; }
+.lh-g3 { width: 500px; height: 500px; background: rgba(0,229,255,0.06); top:30%; left:20%; animation: lhDrift3 22s ease-in-out infinite alternate; }
+.lh-g4 { width: 400px; height: 400px; background: rgba(255,140,77,0.05); bottom:20%; right:20%; animation: lhDrift1 16s ease-in-out infinite alternate-reverse; }
+
+@keyframes lhDrift1 { from{transform:translate(0,0) scale(1);} to{transform:translate(40px,30px) scale(1.1);} }
+@keyframes lhDrift2 { from{transform:translate(0,0) scale(1);} to{transform:translate(-30px,40px) scale(1.15);} }
+@keyframes lhDrift3 { from{transform:translate(0,0) scale(1);} to{transform:translate(50px,-30px) scale(0.95);} }
+
+/* ── Shooting stars ────────────────────────────────── */
+.lh-shoot {
+  position: fixed; left: -200px;
+  width: 200px; height: 2px;
+  background: linear-gradient(90deg, transparent, white, transparent);
+  border-radius: 1px;
+  animation: lhShoot linear infinite;
+  opacity: 0; z-index: 0;
+}
+
+@keyframes lhShoot {
+  0%   { transform: translateX(0)    rotate(-30deg); opacity: 0; }
+  5%   { opacity: 0.7; }
+  30%  { opacity: 0.4; }
+  60%  { opacity: 0; }
+  100% { transform: translateX(calc(100vw + 400px)) rotate(-30deg); opacity: 0; }
+}
+
+/* ── Header ────────────────────────────────────────── */
+.lh-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 200;
+}
+
+.lh-brand { display: flex; align-items: center; gap: 12px; }
+
+.lh-brand-orb {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, #9d4dff, #ff4d9e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 0 20px rgba(157,77,255,0.4);
+}
+
+.lh-brand-name { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; }
+.lh-brand-sub  { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+.lh-nav { display: flex; align-items: center; gap: 8px; }
+
+.lh-nav-btn {
+  color: rgba(255,255,255,0.65); text-decoration: none;
+  padding: 8px 16px; border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
+}
+.lh-nav-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+
+.lh-nav-logout {
+  padding: 8px 16px; border-radius: 50px;
+  background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.25);
+  color: #ff8080; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.lh-nav-logout:hover { background: rgba(255,68,68,0.2); color: white; }
+
+.lh-hamburger {
+  display: none; background: none; border: 1px solid rgba(255,255,255,0.15);
+  color: white; border-radius: 8px; padding: 6px 10px;
+  font-size: 1rem; cursor: pointer;
+}
+
+.lh-mobile-nav {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: rgba(10,5,30,0.97); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; gap: 0;
+  z-index: 999;
+}
+
+.lh-mobile-nav a, .lh-mobile-nav button {
+  padding: 1rem 2rem; color: rgba(255,255,255,0.8);
+  text-decoration: none; font-size: 1rem; font-weight: 600;
+  border: none; background: none; text-align: left; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s;
+}
+.lh-mobile-nav a:hover, .lh-mobile-nav button:hover { background: rgba(255,255,255,0.05); color: white; }
+
+/* ── Hero ──────────────────────────────────────────── */
+.lh-hero {
+  min-height: 85vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem;
+  position: relative; z-index: 1;
+}
+
+.lh-welcome-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(157,77,255,0.15);
+  border: 1px solid rgba(157,77,255,0.3);
+  border-radius: 50px; padding: 8px 20px;
+  font-size: 0.9rem; color: rgba(255,255,255,0.8);
+  margin-bottom: 2rem;
+}
+
+.lh-pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #9d4dff;
+  animation: lhPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lhPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.7);} }
+
+.lh-hero-h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 900; line-height: 1.15;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 60px rgba(157,77,255,0.3);
+}
+
+.lh-hero-gradient {
+  background: linear-gradient(135deg, #9d4dff, #ff4d9e, #00e5ff, #ffeb4d);
+  background-size: 300% 300%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: lhRainbow 6s ease infinite;
+}
+
+@keyframes lhRainbow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.lh-hero-p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(255,255,255,0.55); max-width: 580px; line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+
+.lh-hero-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none;
+  background: linear-gradient(135deg, #9d4dff, #4d79ff);
+  color: white; font-size: 1rem; font-weight: 700;
+  box-shadow: 0 8px 32px rgba(157,77,255,0.4);
+  transition: all 0.3s; position: relative; z-index: 2;
+  animation: lhBtnFloat 3s ease-in-out infinite;
+}
+.lh-hero-btn:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(157,77,255,0.55); }
+
+@keyframes lhBtnFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* Floaters */
+.lh-floaters { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+.lh-floater {
+  position: absolute; animation: lhFloat ease-in-out infinite alternate;
+  font-family: 'Orbitron', sans-serif; font-weight: 900; color: white;
+}
+
+@keyframes lhFloat {
+  from { transform: translateY(0) rotate(0deg); }
+  to   { transform: translateY(-20px) rotate(8deg); }
+}
+
+/* ── Feature section ───────────────────────────────── */
+.lh-features {
+  padding: 5rem 2rem; position: relative; z-index: 1;
+  max-width: 1300px; margin: 0 auto;
+}
+
+.lh-feat-header { text-align: center; margin-bottom: 3.5rem; }
+
+.lh-feat-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900; margin-bottom: 0.8rem;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.6));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.lh-feat-sub { font-size: 1rem; color: rgba(255,255,255,0.4); }
+
+/* ── Planet grid ───────────────────────────────────── */
+.lh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+/* ── Planet card ───────────────────────────────────── */
+.lh-card {
+  position: relative; border-radius: 28px; overflow: hidden;
+  padding: 2rem 1.8rem 1.5rem;
+  text-decoration: none; color: white;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex; flex-direction: column; gap: 0.6rem;
+  cursor: pointer; min-height: 340px;
+  backdrop-filter: blur(10px);
+}
+
+.lh-card:hover, .lh-card-hov {
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 80px -20px var(--glow, #9d4dff);
+}
+
+/* Card background gradient */
+.lh-card-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--c1, #9d4dff), var(--c2, #4d79ff));
+  opacity: 0.06; transition: opacity 0.4s;
+  border-radius: inherit;
+}
+.lh-card:hover .lh-card-bg { opacity: 0.12; }
+
+/* Halo glow */
+.lh-card-halo {
+  position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+  width: 200px; height: 200px; border-radius: 50%;
+  background: var(--glow, #9d4dff);
+  filter: blur(60px); opacity: 0; transition: opacity 0.4s;
+}
+.lh-card:hover .lh-card-halo { opacity: 0.2; }
+
+/* Tag */
+.lh-card-tag {
+  display: inline-flex; align-items: center;
+  padding: 4px 12px; border-radius: 50px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 0.72rem; font-weight: 700;
+  color: rgba(255,255,255,0.7); letter-spacing: 0.5px;
+  margin-bottom: 0.5rem; width: fit-content;
+  position: relative; z-index: 2;
+}
+
+/* Planet orb */
+.lh-orb {
+  position: relative; width: 90px; height: 90px;
+  margin-bottom: 0.5rem; flex-shrink: 0;
+  position: relative; z-index: 2;
+}
+
+.lh-orb-outer, .lh-orb-mid {
+  position: absolute; border-radius: 50%; border: 1px solid;
+  animation: lhOrbSpin linear infinite;
+}
+
+.lh-orb-outer {
+  inset: 0; border-color: rgba(255,255,255,0.12);
+  animation-duration: 8s;
+}
+
+.lh-orb-mid {
+  inset: 12px; border-color: rgba(255,255,255,0.08);
+  animation-duration: 5s; animation-direction: reverse;
+}
+
+@keyframes lhOrbSpin { to { transform: rotate(360deg); } }
+
+.lh-orb-inner {
+  position: absolute; inset: 20px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--c1, #9d4dff), var(--c2, #4d79ff));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 30px var(--glow, #9d4dff), inset 0 0 20px rgba(255,255,255,0.1);
+  animation: lhOrbPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes lhOrbPulse {
+  from { box-shadow: 0 0 20px var(--glow, #9d4dff); }
+  to   { box-shadow: 0 0 40px var(--glow, #9d4dff), 0 0 60px var(--glow, #9d4dff); }
+}
+
+.lh-orb-emoji { font-size: 1.6rem; }
+
+/* Card text */
+.lh-card-h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem; font-weight: 800;
+  position: relative; z-index: 2; margin-top: 0.3rem;
+}
+
+.lh-card-sub2 {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--c1, #9d4dff); text-transform: uppercase;
+  letter-spacing: 1px; position: relative; z-index: 2;
+}
+
+.lh-card-p {
+  font-size: 0.88rem; color: rgba(255,255,255,0.55);
+  line-height: 1.65; position: relative; z-index: 2;
+  flex: 1;
+}
+
+/* Launch button */
+.lh-card-launch {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Orbitron', sans-serif; font-size: 0.82rem; font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative; z-index: 2;
+  transition: all 0.25s; margin-top: auto;
+}
+
+.lh-card:hover .lh-card-launch {
+  color: white; border-top-color: rgba(255,255,255,0.15);
+}
+
+.lh-arrow {
+  transition: transform 0.25s;
+  display: inline-block;
+}
+.lh-card:hover .lh-arrow { transform: translateX(6px); }
+
+/* Floating dots */
+.lh-dots { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+
+.lh-dot {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%;
+  background: var(--c1, #9d4dff);
+  animation: lhDotFloat 4s ease-in-out infinite alternate;
+  opacity: 0.3;
+}
+
+@keyframes lhDotFloat {
+  from { transform: translateY(0) scale(1); opacity: 0.2; }
+  to   { transform: translateY(-12px) scale(1.5); opacity: 0.6; }
+}
+
+/* ── Stats bar ─────────────────────────────────────── */
+.lh-stats {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(10px);
+  position: relative; z-index: 1;
+}
+
+.lh-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 1.5rem 2.5rem;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+.lh-stat:last-child { border-right: none; }
+.lh-stat:hover { background: rgba(255,255,255,0.03); }
+
+.lh-stat-icon { font-size: 1.5rem; }
+.lh-stat-num  { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900; background: linear-gradient(135deg,#9d4dff,#ff4d9e); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.lh-stat-lab  { font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 600; letter-spacing: 0.5px; }
+
+/* ── Footer ────────────────────────────────────────── */
+.lh-footer {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 3rem 2rem; position: relative; z-index: 1;
+}
+
+.lh-footer-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+
+.lh-footer-brand {
+  font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 800;
+  background: linear-gradient(135deg,#9d4dff,#ff4d9e);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  margin-bottom: 0.5rem;
+}
+
+.lh-footer-p { color: rgba(255,255,255,0.3); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+.lh-footer-links {
+  display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.lh-footer-links a, .lh-footer-links button {
+  color: rgba(255,255,255,0.4); text-decoration: none;
+  font-size: 0.85rem; font-weight: 600; background: none; border: none;
+  cursor: pointer; transition: color 0.2s;
+}
+.lh-footer-links a:hover, .lh-footer-links button:hover { color: rgba(255,255,255,0.8); }
+
+.lh-footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .lh-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .lh-card { min-height: 280px; padding: 1.5rem 1.2rem; }
+  .lh-nav  { display: none; }
+  .lh-hamburger { display: block; }
+}
+
+@media (max-width: 600px) {
+  .lh-grid { grid-template-columns: 1fr; }
+  .lh-header { padding: 0.8rem 1.2rem; }
+  .lh-hero  { padding: 3rem 1.2rem; }
+  .lh-features { padding: 3rem 1.2rem; }
+  .lh-stat  { padding: 1rem 1.2rem; }
+  .lh-orb   { width: 70px; height: 70px; }
+  .lh-orb-inner { inset: 16px; }
+  .lh-orb-emoji { font-size: 1.3rem; }
+}

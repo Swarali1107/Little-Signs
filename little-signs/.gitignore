@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Python virtual environments
+venv/
+*/venv/
+env/
+*/env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# React build output
+little-signs/build/
+little-signs/.env.local
+
+# Environment files (keep .env.example but not actual .env)
+.env
+*.env
+little-signs/backend/.env
+
+# ML model (large file - optional)
+# LittleSigns-main/model.h5
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# React cache
+little-signs/.cache/
+little-signs/node_modules/.cache/
