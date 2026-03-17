@@ -26,10 +26,14 @@ npm start
 
 ### Backend
 cd little-signs/backend
+
 pip install -r requirements.txt
+
 python app.py
 
 ### ML Detection Server
 cd LittleSigns-main
+
 pip install flask tensorflow mediapipe opencv-python
+
 python detection_server.py
