@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './WordDictionary.css';
 
 // ── CONFIG — paste your values here ──────────────────────────────────────────
-const DRIVE_API_KEY   = 'AIzaSyBrepDmBexvUg6OqJiyETYVKPItFhohKOM';     // from console.cloud.google.com
+const DRIVE_API_KEY = process.env.REACT_APP_DRIVE_API_KEY || '';    
 const ROOT_FOLDER_ID  = '1U-Pr4r1-cupgNOOq9NH_uTsQnPSVEKco';     // from Drive URL
 // ─────────────────────────────────────────────────────────────────────────────
 
