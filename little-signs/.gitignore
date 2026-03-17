@@ -44,3 +44,5 @@ npm-debug.log*
 # React cache
 little-signs/.cache/
 little-signs/node_modules/.cache/
+*.h5
+*.h5py
