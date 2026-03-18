@@ -1,31 +1,28 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './WordDictionary.css';
 
-// ── CONFIG — paste your values here ──────────────────────────────────────────
-const DRIVE_API_KEY = process.env.REACT_APP_DRIVE_API_KEY || '';    
-const ROOT_FOLDER_ID  = '1U-Pr4r1-cupgNOOq9NH_uTsQnPSVEKco';     // from Drive URL
-// ─────────────────────────────────────────────────────────────────────────────
+const DRIVE_API_KEY  = process.env.REACT_APP_DRIVE_API_KEY || '';
+const ROOT_FOLDER_ID = '1U-Pr4r1-cupgNOOq9NH_uTsQnPSVEKco';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-// Convert Drive file ID → embeddable video URL
-const driveEmbed   = (id) => `https://drive.google.com/file/d/${id}/preview`;
-const driveThumbnail = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w200`;
+const driveEmbed     = (id) => `https://drive.google.com/file/d/${id}/preview`;
 
 export default function WordDictionary() {
-  const [allWords,     setAllWords]     = useState([]);   // [{name, id, letter}]
+  const { user, authFetch } = useAuth();  // ← ADD THIS
+
+  const [allWords,     setAllWords]     = useState([]);
   const [filtered,     setFiltered]     = useState([]);
   const [activeLetter, setActiveLetter] = useState('ALL');
   const [search,       setSearch]       = useState('');
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState('');
-  const [selected,     setSelected]     = useState(null); // currently playing word
+  const [selected,     setSelected]     = useState(null);
   const [particles,    setParticles]    = useState([]);
   const [configured,   setConfigured]   = useState(false);
   const searchRef = useRef(null);
 
-  // ── Particles ──────────────────────────────────────────────────────────────
   useEffect(() => {
     setParticles(Array.from({ length: 60 }, (_, i) => ({
       id: i,
@@ -35,16 +32,13 @@ export default function WordDictionary() {
       delay: Math.random() * 6,
       color: ['#9d4dff','#ff4d9e','#00e5ff','#ffeb4d','#4BB543'][Math.floor(Math.random() * 5)],
     })));
-
-    // Check if API key configured
     setConfigured(
       DRIVE_API_KEY !== 'YOUR_GOOGLE_API_KEY' &&
       ROOT_FOLDER_ID !== 'YOUR_ROOT_FOLDER_ID'
     );
   }, []);
 
-  // ── Fetch all videos from Drive ────────────────────────────────────────────
-  const fetchFolder = useCallback(async (folderId, letter = '') => {
+  const fetchFolder = useCallback(async (folderId) => {
     const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${DRIVE_API_KEY}&pageSize=1000`;
     const res  = await fetch(url);
     if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
@@ -56,41 +50,29 @@ export default function WordDictionary() {
     if (!configured) { setLoading(false); return; }
     setLoading(true); setError('');
     try {
-      // First level — get subfolders (A, B, C...) or direct files
-      const root = await fetchFolder(ROOT_FOLDER_ID);
-
-      const words = [];
-
-      // Check if root has subfolders (structure: root/A/Apple.mp4)
+      const root    = await fetchFolder(ROOT_FOLDER_ID);
+      const words   = [];
       const folders = root.filter(f => f.mimeType === 'application/vnd.google-apps.folder');
       const files   = root.filter(f => f.mimeType.startsWith('video/') || f.name.endsWith('.mp4'));
 
       if (folders.length > 0) {
-        // Has subfolders — fetch each letter folder in parallel
         const results = await Promise.allSettled(
           folders.map(async (folder) => {
             const letter = folder.name.toUpperCase().charAt(0);
-            const items  = await fetchFolder(folder.id, letter);
+            const items  = await fetchFolder(folder.id);
             return items
               .filter(f => f.mimeType.startsWith('video/') || f.name.endsWith('.mp4'))
-              .map(f => ({
-                id:     f.id,
-                name:   f.name.replace(/\.[^.]+$/, ''), // remove extension
-                letter: letter,
-              }));
+              .map(f => ({ id: f.id, name: f.name.replace(/\.[^.]+$/, ''), letter }));
           })
         );
         results.forEach(r => { if (r.status === 'fulfilled') words.push(...r.value); });
       } else {
-        // Flat structure — all videos in one folder
         files.forEach(f => {
           const name   = f.name.replace(/\.[^.]+$/, '');
           const letter = name.charAt(0).toUpperCase();
           words.push({ id: f.id, name, letter });
         });
       }
-
-      // Sort alphabetically
       words.sort((a, b) => a.name.localeCompare(b.name));
       setAllWords(words);
       setFiltered(words);
@@ -103,7 +85,6 @@ export default function WordDictionary() {
 
   useEffect(() => { loadDictionary(); }, [loadDictionary]);
 
-  // ── Filter ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     let list = allWords;
     if (activeLetter !== 'ALL') list = list.filter(w => w.letter === activeLetter);
@@ -113,6 +94,33 @@ export default function WordDictionary() {
     }
     setFiltered(list);
   }, [allWords, activeLetter, search]);
+
+  // ── Track word view ────────────────────────────────────────────────────────
+  const trackWordView = useCallback((word) => {
+    if (!user || !authFetch) return;
+    authFetch('/learner/progress', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        game_type:   'dictionary',
+        is_correct:  true,
+        confidence:  1.0,
+        score_delta: 1,
+        letter:      word.letter,
+        word_name:   word.name,   // extra context
+      }),
+    }).catch(console.error);
+  }, [user, authFetch]);
+
+  // ── Select word + track ───────────────────────────────────────────────────
+  const handleWordSelect = useCallback((word) => {
+    if (selected?.id === word.id) {
+      setSelected(null);
+      return;
+    }
+    setSelected(word);
+    trackWordView(word);  // ← TRACK IT
+  }, [selected, trackWordView]);
 
   const handleLetterClick = (letter) => {
     setActiveLetter(letter);
@@ -125,7 +133,6 @@ export default function WordDictionary() {
     setActiveLetter('ALL');
   };
 
-  // ── Counts per letter ──────────────────────────────────────────────────────
   const letterCounts = ALPHABET.reduce((acc, l) => {
     acc[l] = allWords.filter(w => w.letter === l).length;
     return acc;
@@ -133,7 +140,6 @@ export default function WordDictionary() {
 
   return (
     <div className="wd-root">
-      {/* Particles */}
       <div className="wd-nebula">
         {particles.map(p => (
           <div key={p.id} className="wd-particle" style={{
@@ -149,7 +155,6 @@ export default function WordDictionary() {
         <div className="wd-glow wd-g3"/>
       </div>
 
-      {/* Header */}
       <header className="wd-header">
         <Link to="/home" className="wd-back">← Home</Link>
         <div className="wd-header-center">
@@ -163,7 +168,6 @@ export default function WordDictionary() {
         </div>
       </header>
 
-      {/* Not configured warning */}
       {!configured && (
         <div className="wd-setup-banner">
           <div className="wd-setup-inner">
@@ -171,33 +175,13 @@ export default function WordDictionary() {
             <div>
               <h3>Setup Required</h3>
               <p>Open <code>WordDictionary.js</code> and fill in your Google Drive API key and folder ID.</p>
-              <div className="wd-setup-steps">
-                <div className="wd-setup-step">
-                  <span>1</span>
-                  Go to <a href="https://console.cloud.google.com" target="_blank" rel="noreferrer">console.cloud.google.com</a>
-                </div>
-                <div className="wd-setup-step">
-                  <span>2</span>
-                  Enable Google Drive API → Create API Key
-                </div>
-                <div className="wd-setup-step">
-                  <span>3</span>
-                  Copy your ISLRTC folder ID from the Drive URL
-                </div>
-                <div className="wd-setup-step">
-                  <span>4</span>
-                  Paste both into the CONFIG section at the top of this file
-                </div>
-              </div>
             </div>
           </div>
         </div>
       )}
 
       <div className="wd-body">
-        {/* Left: browse panel */}
         <div className="wd-left">
-          {/* Search */}
           <div className="wd-search-wrap">
             <span className="wd-search-icon">🔍</span>
             <input
@@ -213,50 +197,36 @@ export default function WordDictionary() {
             )}
           </div>
 
-          {/* A-Z tabs */}
           <div className="wd-alpha-wrap">
             <button
               className={`wd-alpha-btn ${activeLetter === 'ALL' ? 'active' : ''}`}
               onClick={() => handleLetterClick('ALL')}
-            >
-              ALL
-            </button>
+            >ALL</button>
             {ALPHABET.map(l => (
               <button
                 key={l}
                 className={`wd-alpha-btn ${activeLetter === l ? 'active' : ''} ${letterCounts[l] === 0 ? 'empty' : ''}`}
                 onClick={() => handleLetterClick(l)}
-                title={`${letterCounts[l]} words`}
               >
                 {l}
-                {letterCounts[l] > 0 && (
-                  <span className="wd-alpha-count">{letterCounts[l]}</span>
-                )}
+                {letterCounts[l] > 0 && <span className="wd-alpha-count">{letterCounts[l]}</span>}
               </button>
             ))}
           </div>
 
-          {/* Results count */}
           <div className="wd-results-info">
-            {loading ? (
-              <span>Loading dictionary...</span>
-            ) : (
-              <span>
-                {filtered.length === 0 ? 'No words found' :
-                 `${filtered.length} word${filtered.length !== 1 ? 's' : ''}${activeLetter !== 'ALL' ? ` starting with ${activeLetter}` : ''}`}
-              </span>
+            {loading ? <span>Loading dictionary...</span> : (
+              <span>{filtered.length === 0 ? 'No words found' : `${filtered.length} word${filtered.length !== 1 ? 's' : ''}`}</span>
             )}
           </div>
 
-          {/* Loading spinner */}
           {loading && (
             <div className="wd-loading">
               <div className="wd-spinner"/>
-              <p>Loading {allWords.length > 0 ? `${allWords.length} words...` : 'dictionary from Google Drive...'}</p>
+              <p>Loading dictionary from Google Drive...</p>
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="wd-error">
               <div>⚠️ {error}</div>
@@ -264,21 +234,19 @@ export default function WordDictionary() {
             </div>
           )}
 
-          {/* Word grid */}
           {!loading && !error && (
             <div className="wd-word-grid">
               {filtered.map(word => (
                 <button
                   key={word.id}
                   className={`wd-word-btn ${selected?.id === word.id ? 'active' : ''}`}
-                  onClick={() => setSelected(selected?.id === word.id ? null : word)}
+                  onClick={() => handleWordSelect(word)}  // ← uses new handler
                 >
                   <span className="wd-word-letter">{word.letter}</span>
                   <span className="wd-word-name">{word.name}</span>
                   {selected?.id === word.id && <span className="wd-word-playing">▶</span>}
                 </button>
               ))}
-
               {filtered.length === 0 && !loading && configured && (
                 <div className="wd-empty">
                   <div className="wd-empty-icon">🔍</div>
@@ -289,7 +257,6 @@ export default function WordDictionary() {
           )}
         </div>
 
-        {/* Right: video player */}
         <div className="wd-right">
           {!selected ? (
             <div className="wd-player-idle">
@@ -302,23 +269,12 @@ export default function WordDictionary() {
               <h3 className="wd-idle-title">Select a Word</h3>
               <p className="wd-idle-sub">
                 {configured
-                  ? 'Choose any word from the list to watch the official ISL tutor video'
+                  ? 'Choose any word to watch the official ISL tutor video'
                   : 'Configure your Google Drive API key to load the ISLRTC dictionary'}
               </p>
-              {!configured && (
-                <div className="wd-idle-demo">
-                  <p>Once configured, you'll see:</p>
-                  <div className="wd-demo-chips">
-                    {['HELLO','WATER','FOOD','SCHOOL','HAPPY','THANK YOU'].map(w => (
-                      <span key={w} className="wd-demo-chip">{w}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="wd-player-active">
-              {/* Word header */}
               <div className="wd-player-header">
                 <div className="wd-player-word-wrap">
                   <div className="wd-player-letter-badge">{selected.letter}</div>
@@ -330,7 +286,6 @@ export default function WordDictionary() {
                 <button className="wd-player-close" onClick={() => setSelected(null)}>✕</button>
               </div>
 
-              {/* Video player */}
               <div className="wd-video-wrap">
                 <iframe
                   key={selected.id}
@@ -342,22 +297,18 @@ export default function WordDictionary() {
                 />
               </div>
 
-              {/* Actions */}
               <div className="wd-player-actions">
                 <a
                   href={`https://drive.google.com/file/d/${selected.id}/view`}
                   target="_blank"
                   rel="noreferrer"
                   className="wd-action-btn"
-                >
-                  ↗ Open Full Screen
-                </a>
+                >↗ Open Full Screen</a>
                 <Link to="/sentence-builder" className="wd-action-btn secondary">
                   ✍️ Practice Spelling
                 </Link>
               </div>
 
-              {/* Related — same letter */}
               <div className="wd-related">
                 <div className="wd-related-label">More words with "{selected.letter}":</div>
                 <div className="wd-related-chips">
@@ -365,7 +316,8 @@ export default function WordDictionary() {
                     .filter(w => w.letter === selected.letter && w.id !== selected.id)
                     .slice(0, 8)
                     .map(w => (
-                      <button key={w.id} className="wd-related-chip" onClick={() => setSelected(w)}>
+                      <button key={w.id} className="wd-related-chip"
+                        onClick={() => handleWordSelect(w)}>
                         {w.name}
                       </button>
                     ))}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
+import ISLLibrary from './pages/ISLLibrary';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -20,6 +20,9 @@ import AboutPage       from './pages/AboutPage';
 import LearnerDashboard from './pages/dashboards/LearnerDashboard';
 import ParentDashboard  from './pages/dashboards/ParentDashboard';
 import TeacherDashboard from './pages/dashboards/TeacherDashboard';
+
+// ✅ NEW: ISL Buddy chatbot (floating button, shows on all learner pages)
+import ISLBuddyButton from './components/ISLBuddyButton';
 
 // Smart root redirect
 function RootRedirect() {
@@ -71,10 +74,15 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/word-dictionary" element={
-            <ProtectedRoute roles={['learner','teacher']}>
-              <WordDictionary />
-            </ProtectedRoute>
-          } />
+  <ProtectedRoute roles={['learner','teacher']}>
+    <WordDictionary />
+  </ProtectedRoute>
+} />
+          <Route path="/library" element={
+  <ProtectedRoute roles={['learner','teacher']}>
+    <ISLLibrary />
+  </ProtectedRoute>
+} />
           <Route path="/sentence-builder" element={
             <ProtectedRoute roles={['learner','teacher']}>
               <SentenceBuilder />
@@ -104,6 +112,9 @@ function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+
+        {/* ✅ ISL Buddy — floats over every page, only shows when logged in as learner */}
+        <ISLBuddyButton />
       </Router>
     </AuthProvider>
   );

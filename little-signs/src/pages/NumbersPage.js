@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { awardBadge, BADGES } from '../utils/badges';
 import './NumbersPage.css';
 
-const NUMBERS    = Array.from({ length: 10 }, (_, i) => i);
-const SIGN_EMOJIS = ['👌','☝️','✌️','🤟','🖖','🖐️','🤙','✋','🤘','👆'];
+const NUMBERS = Array.from({ length: 9 }, (_, i) => i + 1);
+const SIGN_EMOJIS = ['☝️','✌️','🤟','🖖','🖐️','🤙','✋','🤘','👆'];
 
 export default function NumbersPage() {
   const { user, authFetch } = useAuth();
@@ -300,7 +300,7 @@ export default function NumbersPage() {
                 <div className="np-num-badge">{n}</div>
                 <div className="np-num-img-wrap">
                   <img
-                    src={`images/sign/num/${n}.jpg`}
+                    src={`images/sign/Sign_${n}.jpg`}
                     alt={`Sign for ${n}`}
                     onError={e => {
                       e.target.style.display='none';
@@ -351,7 +351,7 @@ export default function NumbersPage() {
                 <div className="np-sign-preview">
                   <div className="np-preview-label">Sign for {selectedNumber}:</div>
                   <img
-                    src={`images/sign/num/${selectedNumber}.jpg`}
+                    src={`images/sign/Sign_${selectedNumber}.jpg`}
                     alt={`Sign ${selectedNumber}`}
                     className="np-preview-img"
                     onError={e => { e.target.style.display='none'; }}
@@ -447,7 +447,7 @@ export default function NumbersPage() {
               <div className="np-quiz-prompt">Which number is this sign?</div>
               <div className="np-quiz-sign-wrap">
                 <img
-                  src={`images/sign/num/${quizQ.answer}.jpg`}
+                  src={`images/sign/Sign_${quizQ.answer}.jpg`}
                   alt="Sign to identify"
                   className="np-quiz-sign-img"
                   onError={e => { e.target.outerHTML = `<div class="np-quiz-sign-fb">${SIGN_EMOJIS[quizQ.answer]}</div>`; }}
