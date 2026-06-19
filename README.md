@@ -7,7 +7,7 @@
 ![Flask](https://img.shields.io/badge/Flask-Python-green?style=for-the-badge&logo=flask)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-ML-orange?style=for-the-badge&logo=tensorflow)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen?style=for-the-badge&logo=mongodb)
-![Accuracy](https://img.shields.io/badge/Model%20Accuracy-90+%25-success?style=for-the-badge)
+![Accuracy](https://img.shields.io/badge/Model%20Accuracy-80+%25-success?style=for-the-badge)
 
 
 **Making Indian Sign Language accessible to 1.8 crore deaf and hard-of-hearing people in India**
@@ -32,7 +32,7 @@ LittleSigns is a **full-stack AI-powered web platform** that makes Indian Sign L
 
 | Feature | Description |
 |---|---|
-| 🤖 **Alphabet Detection** | Real-time ISL A–Z hand sign detection using camera — 90+% AI accuracy |
+| 🤖 **Alphabet Detection** | Real-time ISL A–Z hand sign detection using camera — 80+% AI accuracy |
 | 🔢 **Number Signs** | Learn and practice ISL number signs 0–9 with interactive cards |
 | 📚 **ISL Library** | 41 official ISLRTC subject videos — Maths, Science, English, History, Geography, Civics |
 | 📖 **Word Dictionary** | 1000+ official ISLRTC word sign videos, searchable by letter or keyword |
@@ -69,7 +69,7 @@ LittleSigns is a **full-stack AI-powered web platform** that makes Indian Sign L
 | **Output** | 35 classes — A–Z alphabets + 0–9 numbers |
 | **Dataset** | Indian Sign Language — prathumarikeri (Kaggle) |
 | **Training Samples** | 87,260 (after 4× augmentation) |
-| **Test Accuracy** | **90+%** |
+| **Test Accuracy** | **80+%** |
 | **Framework** | TensorFlow / Keras |
 | **Inference** | MediaPipe Hands → keypoint extraction → model prediction |
 
